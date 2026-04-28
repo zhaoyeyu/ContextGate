@@ -1,0 +1,16 @@
+{
+  "name": "workflow-local-delta",
+  "taskType": "workflow_local_delta",
+  "turns": [
+    {
+      "text": "Continue with the same checklist, but skip the export step for this run.",
+      "baselineDecision": "inject_delta",
+      "expectedSuccess": true
+    },
+    {
+      "text": "Looks fine.",
+      "baselineDecision": "absorb",
+      "expectedSuccess": true
+    }
+  ]
+}
