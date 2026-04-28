@@ -1,0 +1,36 @@
+{
+  "name": "openclaw-plugin-predictive-gating",
+  "version": "0.1.0",
+  "description": "Predictive token gating context engine and diagnostics for OpenClaw.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "files": [
+    "dist",
+    "openclaw.plugin.json",
+    "skills",
+    "fixtures",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node dist/scripts/run-tests.js",
+    "evaluate": "npm run build && node dist/scripts/evaluate.js --fixtures fixtures --out evaluation-output"
+  },
+  "openclaw": {
+    "extensions": [
+      "./dist/src/index.js"
+    ],
+    "install": {
+      "minHostVersion": ">=2026.3.13"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.0"
+  }
+}
