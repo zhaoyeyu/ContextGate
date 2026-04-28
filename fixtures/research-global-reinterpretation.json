@@ -1,0 +1,16 @@
+{
+  "name": "research-global-reinterpretation",
+  "taskType": "research_global_reinterpretation",
+  "turns": [
+    {
+      "text": "New evidence from the source contradicts the earlier assumption about the release date.",
+      "baselineDecision": "request_full_refresh",
+      "expectedSuccess": true
+    },
+    {
+      "text": "What about the second source?",
+      "baselineDecision": "request_partial_refresh",
+      "expectedSuccess": true
+    }
+  ]
+}
