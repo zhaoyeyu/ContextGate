@@ -1,0 +1,113 @@
+{
+  "id": "openclaw-plugin-predictive-gating",
+  "name": "Predictive Gating",
+  "description": "Predictive context gating to suppress redundant rebuilds and redundant re-reasoning.",
+  "version": "0.1.0",
+  "kind": "context-engine",
+  "skills": [
+    "skills"
+  ],
+  "contracts": {
+    "tools": [
+      "predictive_gating_inspect",
+      "predictive_gating_record_feedback"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": true
+      },
+      "defaultProfile": {
+        "type": "string",
+        "enum": [
+          "workflow_local_delta",
+          "coding_iterative",
+          "research_global_reinterpretation",
+          "safety_critical"
+        ],
+        "default": "coding_iterative"
+      },
+      "logPath": {
+        "type": "string",
+        "description": "Optional JSONL path for per-turn decision records."
+      },
+      "maxRecentDeltas": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 20
+      },
+      "forceFullRefreshAfterCorrections": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "default": 2
+      },
+      "profiles": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workflow_local_delta": {
+            "$ref": "#/$defs/profile"
+          },
+          "coding_iterative": {
+            "$ref": "#/$defs/profile"
+          },
+          "research_global_reinterpretation": {
+            "$ref": "#/$defs/profile"
+          },
+          "safety_critical": {
+            "$ref": "#/$defs/profile"
+          }
+        }
+      }
+    },
+    "$defs": {
+      "profile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "absorbMaxActionRelevance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "absorbMaxPredictionError": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "injectMaxRiskDelta": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "partialRefreshConflict": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "fullRefreshRisk": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "fullRefreshConflict": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minConfidenceToGate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    }
+  }
+}
