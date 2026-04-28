@@ -1,0 +1,92 @@
+{
+  "suite_id": "predictive-gating-long-context-2026-04-27",
+  "description": "Long-context realistic suite for local OpenClaw A/B. These cases model drifting goals, evolving constraints, new evidence, and issue resolution across many turns. They are designed to create the exact prompt growth pattern that predictive gating is meant to compress.",
+  "notes": [
+    "These cases better match real OpenClaw use than the original smoke suite.",
+    "Each case keeps a stable task identity but introduces local edits, global reinterpretation, and corrective loops over 7 to 10 turns.",
+    "Token savings should grow as later turns inherit more unchanged session state."
+  ],
+  "cases": [
+    {
+      "id": "article-brief-to-publish",
+      "domain": "writing_article",
+      "goal": "Write and iteratively reshape a product article while the audience, tone, evidence, and publishing constraints drift over time.",
+      "turns": [
+        "You are drafting a 600-word article about a new internal analytics dashboard for engineering managers. Start by giving a concise outline with headline, 3 section headers, and one-sentence takeaway.",
+        "Keep the same article, but change the target audience to startup CTOs instead of engineering managers. Update only what must change in the outline.",
+        "New constraint: avoid hype and avoid the words revolutionary, game-changing, and seamless. Revise the outline accordingly.",
+        "Add this new evidence to the story: the dashboard cut weekly manual reporting time from 6 hours to 90 minutes in a pilot team. Update the outline and the main claim.",
+        "The user now wants the piece to mention one adoption risk: missing data definitions across teams. Fold that in without changing the overall structure more than necessary.",
+        "Actually shorten the article target from 600 words to 350 words and make it suitable for a newsletter. Provide the revised outline only.",
+        "New issue: legal asks that you avoid promising ROI. Update the framing while keeping the rest intact.",
+        "Finish by outputting a final short article draft in 5 tight paragraphs."
+      ]
+    },
+    {
+      "id": "research-report-scope-drift",
+      "domain": "research_report",
+      "goal": "Build a research memo while the scope widens, contradictory evidence arrives, and the conclusion must be repeatedly reinterpreted.",
+      "turns": [
+        "Prepare a research memo outline about whether a mid-sized SaaS company should expand into the Japan market in the next 12 months. Include sections for demand, competition, operations, and recommendation.",
+        "Add a new hard constraint: the company cannot open a local office in the first year. Update the memo outline with only necessary changes.",
+        "New evidence: three competitors already have Japanese-language onboarding and local billing. Revise the competition and recommendation sections.",
+        "New information: a channel partner offers distribution, but only for enterprise deals above 50k ARR. Update the memo implications.",
+        "The user now wants SMB and enterprise separated throughout the memo. Adjust the structure without rewriting everything from scratch.",
+        "Contradictory evidence arrives: support tickets from pilot users show localization problems are worse than expected. Reinterpret the launch recommendation.",
+        "Add a soft preference: management still wants a low-regret path, not a binary yes/no. Update the recommendation format.",
+        "New issue: finance caps the first-year expansion budget at 400k. Rebalance the recommendation with that constraint.",
+        "Final turn: provide a concise executive summary with recommendation, biggest risk, and next validation step."
+      ]
+    },
+    {
+      "id": "financial-analysis-reforecast",
+      "domain": "financial_analysis",
+      "goal": "Iterate a financial analysis while assumptions, exclusions, and risk disclosures change over multiple turns.",
+      "turns": [
+        "Create a compact analysis plan for evaluating whether a B2B software team should hire 4 additional sales reps next quarter. Include revenue assumptions, cost assumptions, and decision criteria.",
+        "New constraint: ignore equity compensation and focus only on cash impact in the first 12 months. Update the plan.",
+        "New data: average ramp time is 5 months, not 3. Update the decision logic and what needs to be recalculated.",
+        "The user now wants downside, base, and upside cases. Add them without changing unrelated parts.",
+        "New issue: one region has much lower win rates, so assume 2 of the 4 reps are in a weaker market. Adjust the analysis plan.",
+        "Add a compliance-style note: the final answer must clearly separate assumptions from conclusions.",
+        "Actually remove the upside case and replace it with a sensitivity on quota attainment from 45% to 70%.",
+        "New evidence: existing managers are at capacity, so one sales manager hire may also be required. Rework the recommendation frame.",
+        "Final turn: provide a short CFO-ready conclusion with recommendation, key driver, and biggest uncertainty."
+      ]
+    },
+    {
+      "id": "agent-development-debug-loop",
+      "domain": "agent_development",
+      "goal": "Develop an OpenClaw agent feature through multiple code, prompt, and behavior corrections across a longer debugging session.",
+      "turns": [
+        "Design a small plan for adding a retry wrapper around a flaky tool call in an OpenClaw agent. Keep it to 4 bullets.",
+        "New constraint: retries must not duplicate side effects. Update only the plan items that change.",
+        "Add this implementation detail: the tool sometimes times out after 15 seconds but succeeds on the second call. Revise the plan.",
+        "The user now wants jittered backoff and a max of 3 attempts. Update the relevant bullets.",
+        "New problem: logs show the wrapper hides the original error cause. Adjust the design to preserve debuggability.",
+        "Actually the wrapper should not retry validation errors at all. Refine the retry policy.",
+        "Add a requirement that the agent summary must state whether the final success came from the first try or a retry.",
+        "New issue: a reviewer points out the wrapper might trap cancellation signals. Correct the design.",
+        "The user changes the goal slightly: the first delivery can be pseudocode and test strategy instead of final code. Adapt the output expectation.",
+        "Final turn: provide the final pseudocode plus 5 focused test cases."
+      ]
+    },
+    {
+      "id": "plugin-development-compatibility",
+      "domain": "plugin_development",
+      "goal": "Iterate a plugin integration task while host API assumptions, install constraints, and diagnostics evolve across turns.",
+      "turns": [
+        "Outline the implementation plan for a native OpenClaw plugin that registers one tool, one service, and one optional command. Keep it concise.",
+        "New constraint: do not modify OpenClaw core and assume host APIs may vary slightly by version. Update the plan.",
+        "Add this issue: the first host version fails command registration unless the handler shape exactly matches the platform SDK. Revise the adapter strategy.",
+        "The user now wants plugin config thresholds exposed in manifest schema instead of hardcoded constants. Update the module plan.",
+        "New evidence: installation will happen from a local .tgz archive, not from source. Adjust packaging and build assumptions.",
+        "A reviewer asks for a built-in debug surface to inspect plugin state per session. Add that without rewriting the rest.",
+        "New problem: one profile treats the plugin as untracked local code unless trust is pinned. Update the install guidance.",
+        "Actually the command name format is stricter than expected and colons are rejected. Correct the command design.",
+        "Add a final requirement: the plugin should ship an evaluation harness with saved JSON and Markdown outputs.",
+        "Final turn: provide the final implementation checklist in execution order."
+      ]
+    }
+  ]
+}
