@@ -1,0 +1,16 @@
+{
+  "name": "coding-iterative",
+  "taskType": "coding_iterative",
+  "turns": [
+    {
+      "text": "The test output shows one failing assertion in auth.test.ts. Fix that local regression.",
+      "baselineDecision": "inject_delta",
+      "expectedSuccess": true
+    },
+    {
+      "text": "Actually, you missed the null user case.",
+      "baselineDecision": "request_full_refresh",
+      "expectedSuccess": true
+    }
+  ]
+}
