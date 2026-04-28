@@ -1,0 +1,42 @@
+{
+  "suite_id": "predictive-gating-long-context-phase1-2026-04-27",
+  "description": "Budget-controlled first long-context tranche. It focuses on two realistic high-yield domains where the task identity stays stable but local deltas accumulate across many turns.",
+  "notes": [
+    "Use this before the full long-context suite when provider budget is limited.",
+    "These two cases should expose whether token savings grow as session history accumulates."
+  ],
+  "cases": [
+    {
+      "id": "article-brief-to-publish",
+      "domain": "writing_article",
+      "goal": "Write and iteratively reshape a product article while the audience, tone, evidence, and publishing constraints drift over time.",
+      "turns": [
+        "You are drafting a 600-word article about a new internal analytics dashboard for engineering managers. Start by giving a concise outline with headline, 3 section headers, and one-sentence takeaway.",
+        "Keep the same article, but change the target audience to startup CTOs instead of engineering managers. Update only what must change in the outline.",
+        "New constraint: avoid hype and avoid the words revolutionary, game-changing, and seamless. Revise the outline accordingly.",
+        "Add this new evidence to the story: the dashboard cut weekly manual reporting time from 6 hours to 90 minutes in a pilot team. Update the outline and the main claim.",
+        "The user now wants the piece to mention one adoption risk: missing data definitions across teams. Fold that in without changing the overall structure more than necessary.",
+        "Actually shorten the article target from 600 words to 350 words and make it suitable for a newsletter. Provide the revised outline only.",
+        "New issue: legal asks that you avoid promising ROI. Update the framing while keeping the rest intact.",
+        "Finish by outputting a final short article draft in 5 tight paragraphs."
+      ]
+    },
+    {
+      "id": "agent-development-debug-loop",
+      "domain": "agent_development",
+      "goal": "Develop an OpenClaw agent feature through multiple code, prompt, and behavior corrections across a longer debugging session.",
+      "turns": [
+        "Design a small plan for adding a retry wrapper around a flaky tool call in an OpenClaw agent. Keep it to 4 bullets.",
+        "New constraint: retries must not duplicate side effects. Update only the plan items that change.",
+        "Add this implementation detail: the tool sometimes times out after 15 seconds but succeeds on the second call. Revise the plan.",
+        "The user now wants jittered backoff and a max of 3 attempts. Update the relevant bullets.",
+        "New problem: logs show the wrapper hides the original error cause. Adjust the design to preserve debuggability.",
+        "Actually the wrapper should not retry validation errors at all. Refine the retry policy.",
+        "Add a requirement that the agent summary must state whether the final success came from the first try or a retry.",
+        "New issue: a reviewer points out the wrapper might trap cancellation signals. Correct the design.",
+        "The user changes the goal slightly: the first delivery can be pseudocode and test strategy instead of final code. Adapt the output expectation.",
+        "Final turn: provide the final pseudocode plus 5 focused test cases."
+      ]
+    }
+  ]
+}
