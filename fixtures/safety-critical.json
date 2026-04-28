@@ -1,0 +1,16 @@
+{
+  "name": "safety-critical",
+  "taskType": "safety_critical",
+  "turns": [
+    {
+      "text": "Do not proceed if this could expose credentials or violate compliance.",
+      "baselineDecision": "request_full_refresh",
+      "expectedSuccess": true
+    },
+    {
+      "text": "The logs show a security failure in the previous step.",
+      "baselineDecision": "request_full_refresh",
+      "expectedSuccess": true
+    }
+  ]
+}
