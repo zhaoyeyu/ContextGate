@@ -1,0 +1,37 @@
+{
+  "suite_id": "predictive-gating-short-realistic-2026-04-27",
+  "description": "Short realistic smoke suite. Each case is only two turns, so it is useful for install and regression checks but it under-exercises long-session token savings.",
+  "notes": [
+    "Use this suite when budget is tight or after a plugin code change.",
+    "It samples real domains but does not create enough session history for predictive gating to dominate total prompt size."
+  ],
+  "cases": [
+    {
+      "id": "release-note-editing",
+      "domain": "writing_article",
+      "goal": "Simulate a writer revising an internal release note workflow after a small audience-specific change.",
+      "turns": [
+        "Draft a terse 3-step checklist for publishing a release note to technical users. Output numbered lines only.",
+        "Keep the same checklist, but replace the final step with 'post to the internal changelog'. Output only the updated checklist."
+      ]
+    },
+    {
+      "id": "agent-bugfix-iteration",
+      "domain": "agent_development",
+      "goal": "Simulate a developer spotting a bug and then tightening the fix after a local requirement change.",
+      "turns": [
+        "Review this function and name the bug in one sentence: function normalizeName(name){ return name.trim().toLowerCase(); }",
+        "Same function, but now it must also return an empty string for null or undefined input. Give a one-sentence fix."
+      ]
+    },
+    {
+      "id": "memo-contradiction-update",
+      "domain": "research_report",
+      "goal": "Simulate a researcher updating a conclusion after one contradictory evidence item arrives.",
+      "turns": [
+        "Assume an internal memo claims release date A. Give one sentence on what evidence would matter most before repeating the claim.",
+        "New evidence now contradicts the memo and supports release date B instead. Update your conclusion in one sentence."
+      ]
+    }
+  ]
+}
