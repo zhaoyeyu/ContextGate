@@ -6,11 +6,38 @@ The goal is to reduce average token use by avoiding redundant context rebuilds a
 
 ## Install
 
+Prerequisites:
+
+- Node.js `>=22`
+- OpenClaw host `>=2026.3.13`
+- `npm`
+
+If you downloaded the repository source from GitHub, build it first. The GitHub source tree does not rely on committed `dist/` artifacts.
+
 ```bash
 npm install
 npm run build
 openclaw plugins install .
 openclaw plugins enable openclaw-plugin-predictive-gating
+```
+
+GitHub source install flow:
+
+```bash
+git clone https://github.com/zhaoyeyu/ContextGate.git
+cd ContextGate
+npm ci
+npm run build
+openclaw plugins install .
+openclaw plugins enable openclaw-plugin-predictive-gating
+```
+
+If you want a local archive instead of installing from the working tree:
+
+```bash
+npm ci
+npm pack
+openclaw plugins install ./openclaw-plugin-predictive-gating-0.1.0.tgz
 ```
 
 Example config:
