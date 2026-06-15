@@ -1,9 +1,9 @@
 {
   "suite_id": "predictive-gating-short-realistic-2026-04-27",
-  "description": "Short realistic smoke suite. Each case is only two turns, so it is useful for install and regression checks but it under-exercises long-session token savings.",
+  "description": "Short realistic smoke suite for installation and regression checks.",
   "notes": [
-    "Use this suite when budget is tight or after a plugin code change.",
-    "It samples real domains but does not create enough session history for predictive gating to dominate total prompt size."
+    "Use this suite after plugin code changes.",
+    "It samples multiple domains while keeping session history short."
   ],
   "cases": [
     {

@@ -1,80 +1,47 @@
-# Predictive Gating A/B Plan
+# Predictive Gating A/B Benchmark
 
-## Assessment of the first suite
+The benchmark compares predictive gating with a full-refresh baseline across short and long context sessions.
 
-The first VM suite was a valid smoke test, but it was not yet a realistic proxy for sustained OpenClaw usage.
+## Suites
 
-What it did well:
+### Short Regression Suite
 
-- It verified that baseline and treatment could both run against the same model and workspace.
-- It covered three plugin-relevant modes:
-  - local workflow edits
-  - coding iteration
-  - global reinterpretation after new evidence
-- It was cheap enough to validate installation and prompt-building behavior without burning much provider budget.
+`fixtures/vm-ab-short-realistic.json`
 
-Where it was weak:
+- Three two-turn cases.
+- Intended for installation checks and fast regression testing.
+- Covers local workflow updates, coding iteration, and conclusion updates after new evidence.
 
-- Every case was only two turns long.
-- It did not model continuing task state across many turns.
-- It did not include repeated constraint changes, deleted requirements, or corrective loops.
-- It did not cover some realistic domains the plugin should help with:
-  - article drafting
-  - research memo evolution
-  - financial analysis reforecasting
-  - agent development debugging
-  - plugin development compatibility work
+### Long Context Suite
 
-That means the first suite was good for proving the harness works, but it likely underestimates token savings. Predictive gating should help more once the unchanged state inside a session becomes much larger than the newest delta.
+`fixtures/vm-ab-long-context-realistic.json`
 
-## Why longer sessions matter for this plugin
+- Five multi-turn cases.
+- Measures token use as goals, constraints, evidence, and tool results accumulate.
+- Covers drafting, research, financial analysis, debugging, and plugin compatibility work.
 
-The plugin is designed to avoid sending full raw history into the main reasoning path when only a local delta matters. In short sessions, the baseline prompt is still small, so the upside from gating is muted. In longer sessions:
+### Focused Long Context Suite
 
-- the accumulated plan grows
-- constraints accumulate
-- evidence piles up
-- previous tool results stay relevant
-- only a small fraction of each new turn actually changes the next action
+`fixtures/vm-ab-long-context-phase1.json`
 
-That is exactly where the delta-based context engine should pull away from a legacy full-refresh baseline.
+- A smaller multi-turn subset for faster iteration.
+- Exercises drafting and coding workflows where local deltas accumulate.
 
-## Recommended suite structure
+## Run
 
-Use two suites:
-
-1. `fixtures/vm-ab-short-realistic.json`
-
-- Purpose: cheap regression and install smoke test
-- Length: 3 cases x 2 turns
-- Good for: quick validation after code changes
-
-2. `fixtures/vm-ab-long-context-realistic.json`
-
-- Purpose: realistic A/B signal for token savings
-- Length: 5 cases x 8-10 turns
-- Good for:
-  - article drafting and reframing
-  - research report reinterpretation
-  - financial analysis reforecasting
-  - agent development debug loops
-  - plugin development compatibility iteration
-
-## How to run in the VM
-
-The VM script now accepts a suite file:
+Use the repository-relative fixture path:
 
 ```bash
-python3 /home/benjamin/ab-tests/run_vm_openclaw_ab.py --suite /home/benjamin/ab-tests/fixtures/vm-ab-long-context-realistic.json
+python3 scripts/run_vm_openclaw_ab.py --suite fixtures/vm-ab-long-context-realistic.json
 ```
 
-Or for the short smoke suite:
+For the short suite:
 
 ```bash
-python3 /home/benjamin/ab-tests/run_vm_openclaw_ab.py --suite /home/benjamin/ab-tests/fixtures/vm-ab-short-realistic.json
+python3 scripts/run_vm_openclaw_ab.py --suite fixtures/vm-ab-short-realistic.json
 ```
 
-## What to look for
+## Metrics
 
 Primary metrics:
 
@@ -82,16 +49,10 @@ Primary metrics:
 - input tokens
 - duration
 
-Secondary checks:
+Quality checks:
 
-- whether treatment starts to save more on later turns than earlier turns
-- whether research/global reinterpretation cases save less than local-delta cases
-- whether any case shows semantic drift or degraded final quality
-
-## Budget guidance
-
-With a small remaining provider budget, run in this order:
-
-1. short realistic suite after any code change
-2. one or two long cases from the realistic suite
-3. the full long suite only after the plugin behavior is stable
+- task success proxy
+- fallback escalations
+- false positive and false negative rates
+- semantic drift or degraded final output
+- action distribution divergence from the baseline

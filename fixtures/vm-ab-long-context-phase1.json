@@ -1,8 +1,8 @@
 {
   "suite_id": "predictive-gating-long-context-phase1-2026-04-27",
-  "description": "Budget-controlled first long-context tranche. It focuses on two realistic high-yield domains where the task identity stays stable but local deltas accumulate across many turns.",
+  "description": "Focused long-context suite covering two domains where task identity stays stable while local deltas accumulate across many turns.",
   "notes": [
-    "Use this before the full long-context suite when provider budget is limited.",
+    "Use this suite for faster iteration before running the full long-context benchmark.",
     "These two cases should expose whether token savings grow as session history accumulates."
   ],
   "cases": [

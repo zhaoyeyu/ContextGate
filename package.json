@@ -20,7 +20,8 @@
     "build": "tsc -p tsconfig.json",
     "prepack": "npm run build",
     "test": "npm run build && node dist/scripts/run-tests.js",
-    "evaluate": "npm run build && node dist/scripts/evaluate.js --fixtures fixtures --out evaluation-output"
+    "evaluate": "npm run build && node dist/scripts/evaluate.js --fixtures fixtures --out evaluation-output",
+    "public-boundary": "node scripts/check-public-boundary.mjs"
   },
   "openclaw": {
     "extensions": [

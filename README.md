@@ -2,7 +2,7 @@
 
 Native OpenClaw context-engine plugin for predictive token gating. It keeps structured task/session state, predicts the expected next update, encodes observed input as a delta, values the delta, and chooses one of `absorb`, `inject_delta`, `request_partial_refresh`, or `request_full_refresh`.
 
-The goal is to reduce average token use by avoiding redundant context rebuilds and redundant re-reasoning on suitable workloads. It does not try to win by summarizing everything, removing globally relevant evidence, or skipping correctness checks.
+The goal is to reduce average token use by avoiding redundant context rebuilds and re-reasoning on suitable workloads. The engine preserves globally relevant evidence and requests broader refreshes when conflict, uncertainty, or correctness risk increases.
 
 ## Install
 
