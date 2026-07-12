@@ -9,14 +9,11 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-OPENCLAW = [
-    "/usr/bin/node",
-    "/home/benjamin/.npm-global/lib/node_modules/openclaw/openclaw.mjs",
-]
+OPENCLAW = ["openclaw"]
 
 PROFILES = {
-    "baseline": "ab-base",
-    "treatment": "ab-gate",
+    "baseline": "baseline",
+    "treatment": "treatment",
 }
 
 
@@ -44,8 +41,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run a local OpenClaw A/B comparison in the Ubuntu VM.")
     parser.add_argument("--suite", required=True, help="Path to a JSON suite file inside the VM.")
     parser.add_argument(
+        "--openclaw-command",
+        nargs="+",
+        default=["openclaw"],
+        help="Command used to invoke OpenClaw, including an optional runtime prefix.",
+    )
+    parser.add_argument("--baseline-profile", default="baseline", help="OpenClaw profile for the baseline run.")
+    parser.add_argument("--treatment-profile", default="treatment", help="OpenClaw profile for the ContextGate run.")
+    parser.add_argument(
         "--output-root",
-        default="/home/benjamin/ab-tests",
+        default="evaluation-output/vm-ab",
         help="Directory under which per-suite report folders are created.",
     )
     return parser.parse_args()
@@ -53,7 +58,7 @@ def parse_args() -> argparse.Namespace:
 
 def load_suite(path: str) -> dict:
     suite_path = Path(path)
-    data = json.loads(suite_path.read_text())
+    data = json.loads(suite_path.read_text(encoding="utf-8"))
     if "suite_id" not in data or "cases" not in data:
         raise ValueError(f"Invalid suite file: {suite_path}")
     return data
@@ -237,7 +242,8 @@ def write_report(output_dir: Path, suite: dict, results: list[TurnResult], summa
             },
             indent=2,
         )
-        + "\n"
+        + "\n",
+        encoding="utf-8",
     )
 
     lines = [
@@ -304,7 +310,7 @@ def write_report(output_dir: Path, suite: dict, results: list[TurnResult], summa
         lines.append(
             f"| `{r.profile}` | `{r.case_id}` | {r.turn_index} | {'yes' if r.ok else 'no'} | {r.usage_input or 0} | {r.usage_output or 0} | {r.usage_total or 0} | {r.duration_ms or 0} | {response} |"
         )
-    md_path.write_text("\n".join(lines) + "\n")
+    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def save_progress(output_dir: Path, suite: dict, results: list[TurnResult]) -> None:
@@ -313,7 +319,13 @@ def save_progress(output_dir: Path, suite: dict, results: list[TurnResult]) -> N
 
 
 def main() -> None:
+    global OPENCLAW, PROFILES
     args = parse_args()
+    OPENCLAW = args.openclaw_command
+    PROFILES = {
+        "baseline": args.baseline_profile,
+        "treatment": args.treatment_profile,
+    }
     suite = load_suite(args.suite)
     output_dir = Path(args.output_root) / suite["suite_id"]
     output_dir.mkdir(parents=True, exist_ok=True)

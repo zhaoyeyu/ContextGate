@@ -3,7 +3,12 @@ import type { PredictedNextState, StructuredDelta, TaskSessionState, Valuation }
 export class UpdateValuator {
   valuate(delta: StructuredDelta, state: TaskSessionState, prediction: PredictedNextState): Valuation {
     return {
-      prediction_error: prediction.expectedDeltaKinds.includes(delta.kind) ? 0.15 : 0.7,
+      prediction_error:
+        delta.kind === "none" || delta.kind === "acknowledgement"
+          ? 0.1
+          : prediction.expectedDeltaKinds.includes(delta.kind)
+            ? 0.15
+            : 0.7,
       action_relevance: actionRelevance(delta),
       risk_delta: riskDelta(delta, state),
       novelty: novelty(delta, state),
@@ -17,6 +22,8 @@ function actionRelevance(delta: StructuredDelta): number {
   switch (delta.kind) {
     case "none":
       return 0;
+    case "acknowledgement":
+      return 0.05;
     case "clarification":
       return 0.25;
     case "local_instruction_change":
@@ -46,6 +53,7 @@ function riskDelta(delta: StructuredDelta, state: TaskSessionState): number {
     case "global_goal_change":
       return Math.max(base, 0.55);
     case "none":
+    case "acknowledgement":
     case "clarification":
     case "local_instruction_change":
     case "new_evidence":
@@ -55,6 +63,7 @@ function riskDelta(delta: StructuredDelta, state: TaskSessionState): number {
 }
 
 function novelty(delta: StructuredDelta, state: TaskSessionState): number {
+  if (delta.kind === "none" || delta.kind === "acknowledgement") return 0;
   const previous = state.recent_deltas.find((item) => item.summary === delta.summary || item.localEvidence === delta.localEvidence);
   return previous ? 0.1 : Math.min(1, 0.35 + delta.affectedFields.length * 0.15);
 }
@@ -64,7 +73,7 @@ function conflictScore(delta: StructuredDelta): number {
 }
 
 function compressibility(delta: StructuredDelta): number {
-  if (delta.kind === "none") return 1;
+  if (delta.kind === "none" || delta.kind === "acknowledgement") return 1;
   const evidenceLength = delta.evidence.join(" ").length;
   const sourceLength = delta.localEvidence?.length ?? evidenceLength;
   if (sourceLength === 0) return 1;

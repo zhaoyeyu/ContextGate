@@ -9,11 +9,13 @@ export interface OpenClawContextEngine {
   info: {
     id: string;
     name: string;
+    version?: string;
     ownsCompaction?: boolean;
+    hostRequirements?: Record<string, unknown>;
   };
-  ingest?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
+  ingest: (input: Record<string, unknown>) => Promise<unknown> | unknown;
   assemble: (input: Record<string, unknown>) => Promise<unknown> | unknown;
-  compact?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
+  compact: (input: Record<string, unknown>) => Promise<unknown> | unknown;
 }
 
 export interface OpenClawCommandContext {
@@ -50,5 +52,10 @@ export const objectSchema = (properties: Record<string, unknown>, required: stri
 
 export const stringSchema = (description?: string): Record<string, unknown> => ({
   type: "string",
+  ...(description ? { description } : {})
+});
+
+export const booleanSchema = (description?: string): Record<string, unknown> => ({
+  type: "boolean",
   ...(description ? { description } : {})
 });

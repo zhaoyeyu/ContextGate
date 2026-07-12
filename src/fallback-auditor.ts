@@ -7,8 +7,11 @@ export interface FallbackResult {
 
 export class FallbackAuditor {
   audit(state: TaskSessionState, delta: StructuredDelta, correctionLimit: number): FallbackResult {
-    const recent = state.gating_history.slice(0, 6);
-    const correctionLoops = recent.filter((entry) => entry.deltaKind === "correction" || entry.deltaKind === "dissatisfaction").length;
+    const recent = entriesBeforeFullRefresh(state);
+    const currentIsCorrection = delta.kind === "correction" || delta.kind === "dissatisfaction";
+    const correctionLoops =
+      recent.filter((entry) => entry.deltaKind === "correction" || entry.deltaKind === "dissatisfaction").length +
+      (currentIsCorrection ? 1 : 0);
     if (correctionLoops >= correctionLimit) {
       return { triggered: true, reason: "repeated correction or dissatisfaction loop" };
     }
@@ -28,4 +31,13 @@ export class FallbackAuditor {
     if (!conservative && !baselineNeedsRefresh) return "true_negative";
     return conservative ? "false_positive" : "false_negative";
   }
+}
+
+function entriesBeforeFullRefresh(state: TaskSessionState): TaskSessionState["gating_history"] {
+  const entries: TaskSessionState["gating_history"] = [];
+  for (const entry of state.gating_history.slice(0, 12)) {
+    if (entry.decision === "request_full_refresh") break;
+    entries.push(entry);
+  }
+  return entries;
 }

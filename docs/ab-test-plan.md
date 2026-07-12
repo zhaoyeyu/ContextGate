@@ -29,16 +29,24 @@ The benchmark compares predictive gating with a full-refresh baseline across sho
 
 ## Run
 
-Use the repository-relative fixture path:
+Use repository-relative paths and explicit OpenClaw profile names:
 
 ```bash
-python3 scripts/run_vm_openclaw_ab.py --suite fixtures/vm-ab-long-context-realistic.json
+python3 scripts/run_vm_openclaw_ab.py \
+  --suite fixtures/vm-ab-long-context-realistic.json \
+  --baseline-profile baseline \
+  --treatment-profile treatment \
+  --openclaw-command openclaw
 ```
 
 For the short suite:
 
 ```bash
-python3 scripts/run_vm_openclaw_ab.py --suite fixtures/vm-ab-short-realistic.json
+python3 scripts/run_vm_openclaw_ab.py \
+  --suite fixtures/vm-ab-short-realistic.json \
+  --baseline-profile baseline \
+  --treatment-profile treatment \
+  --openclaw-command openclaw
 ```
 
 ## Metrics
