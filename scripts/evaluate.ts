@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
+import { resolveConfig } from "../src/config.js";
 import { GatingEngine } from "../src/gating-engine.js";
 import type { GatingDecision, TaskType } from "../src/types.js";
 
@@ -35,7 +36,10 @@ const fixturesDir = readArg("--fixtures", "fixtures");
 const outDir = readArg("--out", "evaluation-output");
 const metrics: Metrics[] = [];
 
-for (const fixture of await loadFixtures(fixturesDir)) {
+const { fixtures, skipped } = await loadFixtures(fixturesDir);
+if (fixtures.length === 0) throw new Error(`No policy fixtures found in ${fixturesDir}`);
+for (const file of skipped) console.warn(`skip - ${file} uses the VM A/B suite format`);
+for (const fixture of fixtures) {
   metrics.push(await evaluateFixture(fixture));
 }
 
@@ -44,7 +48,7 @@ await writeFile(join(outDir, "metrics.json"), `${JSON.stringify(metrics, null, 2
 await writeFile(join(outDir, "report.md"), renderReport(metrics), "utf8");
 
 async function evaluateFixture(fixture: Fixture): Promise<Metrics> {
-  const engine = new GatingEngine();
+  const engine = new GatingEngine(undefined, resolveConfig({ operationMode: "enforce" }));
   const start = performance.now();
   let inputTokens = 0;
   let outputTokens = 0;
@@ -66,7 +70,7 @@ async function evaluateFixture(fixture: Fixture): Promise<Metrics> {
     inputTokens += baselineTokens - result.record.estimated_full_context_tokens_avoided;
     outputTokens += estimateOutputTokens(result.decision);
     fallbackEscalations += result.record.fallback_triggered ? 1 : 0;
-    success += turn.expectedSuccess && result.decision !== "absorb" ? 1 : turn.expectedSuccess ? 0.8 : 0.4;
+    success += turn.expectedSuccess ? 1 - decisionDistance(turn.baselineDecision, result.decision) * 0.25 : 0.4;
 
     const baselineRefresh = isRefresh(turn.baselineDecision);
     const treatmentRefresh = isRefresh(result.decision);
@@ -91,9 +95,52 @@ async function evaluateFixture(fixture: Fixture): Promise<Metrics> {
   };
 }
 
-async function loadFixtures(dir: string): Promise<Fixture[]> {
+async function loadFixtures(dir: string): Promise<{ fixtures: Fixture[]; skipped: string[] }> {
   const files = (await readdir(dir)).filter((file) => file.endsWith(".json"));
-  return Promise.all(files.map(async (file) => JSON.parse(await readFile(join(dir, file), "utf8")) as Fixture));
+  const fixtures: Fixture[] = [];
+  const skipped: string[] = [];
+  for (const file of files) {
+    const value = JSON.parse(await readFile(join(dir, file), "utf8")) as unknown;
+    if (isFixture(value)) fixtures.push(value);
+    else if (isVmSuite(value)) skipped.push(file);
+    else throw new TypeError(`Invalid fixture schema: ${file}`);
+  }
+  return { fixtures, skipped };
+}
+
+function isFixture(value: unknown): value is Fixture {
+  if (!isRecord(value) || typeof value.name !== "string" || !isTaskType(value.taskType) || !Array.isArray(value.turns)) {
+    return false;
+  }
+  return value.turns.every(
+    (turn) =>
+      isRecord(turn) &&
+      typeof turn.text === "string" &&
+      isDecision(turn.baselineDecision) &&
+      typeof turn.expectedSuccess === "boolean"
+  );
+}
+
+function isVmSuite(value: unknown): boolean {
+  return isRecord(value) && typeof value.suite_id === "string" && Array.isArray(value.cases);
+}
+
+function isTaskType(value: unknown): value is TaskType {
+  return value === "workflow_local_delta" ||
+    value === "coding_iterative" ||
+    value === "research_global_reinterpretation" ||
+    value === "safety_critical";
+}
+
+function isDecision(value: unknown): value is GatingDecision {
+  return value === "absorb" ||
+    value === "inject_delta" ||
+    value === "request_partial_refresh" ||
+    value === "request_full_refresh";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function renderReport(metrics: Metrics[]): string {

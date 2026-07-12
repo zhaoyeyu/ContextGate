@@ -1,6 +1,6 @@
 ---
 name: predictive-gating
-description: Think in structured deltas so unchanged state can remain implicit when predictive gating is active.
+description: Use ContextGate decision explanations to reason about structured updates without hiding correctness checks.
 ---
 
 # Predictive Gating
@@ -15,6 +15,6 @@ Before asking for or consuming a full context rebuild, answer:
 4. Can unchanged state remain implicit without losing globally relevant evidence?
 5. Is this a research reinterpretation, safety-critical, or conflict-heavy turn that needs conservative refresh?
 
-Prefer delta injection when the new information only changes a local action. Prefer broader refresh when risk, contradiction, user correction, or dissatisfaction is present.
+Treat the recorded recommendation as advisory when `operationMode` is `observe`. Prefer delta injection only when the active rule explains why the update is local and low risk. Prefer broader refresh when risk, contradiction, user correction, dissatisfaction, or missing session identity is present.
 
 Do not hide correctness checks. Token savings are only valid when the task can still be completed to the same quality bar.

@@ -6,9 +6,12 @@ export type TaskType =
 
 export type ConversationMode = "default" | "review" | "planning" | "execution" | "debug";
 export type GatingDecision = "absorb" | "inject_delta" | "request_partial_refresh" | "request_full_refresh";
+export type OperationMode = "observe" | "enforce";
+export type ContentLoggingMode = "metadata" | "full";
 
 export type DeltaKind =
   | "none"
+  | "acknowledgement"
   | "clarification"
   | "local_instruction_change"
   | "global_goal_change"
@@ -48,6 +51,8 @@ export interface StructuredDelta {
   affectedFields: Array<keyof TaskSessionState>;
   estimatedTokens: number;
   localEvidence?: string;
+  observedToolName?: string;
+  observedToolResultShape?: string;
 }
 
 export interface GatingHistoryEntry {
@@ -107,20 +112,40 @@ export interface ProfileThresholds {
 
 export interface PluginConfig {
   enabled: boolean;
+  operationMode: OperationMode;
+  contentLogging: ContentLoggingMode;
+  allowSensitiveDiagnostics: boolean;
   defaultProfile: TaskType;
   logPath?: string;
+  statePath?: string;
   maxRecentDeltas: number;
+  maxSessions: number;
+  sessionTtlMinutes: number;
+  preserveRecentMessages: number;
   forceFullRefreshAfterCorrections: number;
   profiles: Record<TaskType, ProfileThresholds>;
 }
 
+export interface DecisionExplanation {
+  matchedRule: string;
+  summary: string;
+  profile: TaskType;
+  signals: Valuation;
+  thresholds: ProfileThresholds;
+  warnings: string[];
+}
+
 export interface DecisionRecord {
-  schema_version: "predictive-gating.v1";
+  schema_version: "predictive-gating.v2";
   turn_id: string;
   session_id: string;
   created_at: string;
   estimated_full_context_tokens_avoided: number;
+  estimated_tokens_avoided_if_enforced: number;
   gating_decision: GatingDecision;
+  recommended_gating_decision: GatingDecision;
+  policy_mode: OperationMode;
+  decision_reason: string;
   delta_size: number;
   fallback_triggered: boolean;
   fallback_reason?: string;
@@ -128,6 +153,7 @@ export interface DecisionRecord {
   confidence_before: number;
   confidence_after: number;
   valuation: Valuation;
+  explanation: DecisionExplanation;
   delta: StructuredDelta;
 }
 
